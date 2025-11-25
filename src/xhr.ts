@@ -1,13 +1,17 @@
 import { parseHeaders } from './helpers/header'
 import { AxiosPromise, AxiosRequestConfig, AxiosResponse } from './types'
 export default function xhr(config: AxiosRequestConfig): AxiosPromise {
-  return new Promise(resolve => {
-    const { data = null, url, method = 'get', headers, responseType } = config
+  return new Promise((resolve, reject) => {
+    const { data = null, url, method = 'get', headers, responseType, timeout } = config
 
     const request = new XMLHttpRequest()
 
     if (responseType) {
       request.responseType = responseType
+    }
+
+    if (timeout) {
+      request.timeout = timeout
     }
 
     request.open(method.toUpperCase(), url, true)
@@ -17,6 +21,7 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
       if (request.readyState !== 4) {
         return
       }
+
       // 处理response
       const responseHeaders = parseHeaders(request.getAllResponseHeaders())
       // 这里有问题headers是string类型不方便查看，
@@ -30,7 +35,16 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
         config,
         request
       }
-      resolve(response)
+      // resolve(response),改成方法
+      handleResponse(response)
+    }
+
+    request.onerror = function handleError() {
+      reject(new Error('NetWork Error!'))
+    }
+
+    request.ontimeout = function handleTimeout() {
+      reject(new Error(`超市${timeout}`))
     }
 
     // 在open之后设置headers
@@ -42,5 +56,13 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
       }
     })
     request.send(data)
+
+    function handleResponse(response: AxiosResponse) {
+      if (response.status >= 200 && response.status < 300) {
+        resolve(response)
+      } else {
+        reject(new Error(`Request failed with status code ${response.status}`))
+      }
+    }
   })
 }
