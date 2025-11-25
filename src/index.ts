@@ -1,11 +1,11 @@
 import { transformRequest } from './helpers/data'
 import { processHeaders } from './helpers/header'
 import { buildURL } from './helpers/url'
-import { AxiosRequestConfig } from './types'
+import { AxiosRequestConfig, AxiosPromise } from './types'
 import xhr from './xhr'
-function axios(config: AxiosRequestConfig) {
+function axios(config: AxiosRequestConfig): AxiosPromise {
   processConfig(config)
-  xhr(config)
+  return xhr(config)
 }
 function processConfig(config: AxiosRequestConfig) {
   // 对config里面的url进行处理
