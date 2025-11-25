@@ -1,5 +1,6 @@
 import { parseHeaders } from './helpers/header'
 import { AxiosPromise, AxiosRequestConfig, AxiosResponse } from './types'
+import { createError } from './helpers/error'
 export default function xhr(config: AxiosRequestConfig): AxiosPromise {
   return new Promise((resolve, reject) => {
     const { data = null, url, method = 'get', headers, responseType, timeout } = config
@@ -40,11 +41,13 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
     }
 
     request.onerror = function handleError() {
-      reject(new Error('NetWork Error!'))
+      // reject(new Error('NetWork Error!'))
+      reject(createError('NetWork Error!', config, null, request))
     }
 
     request.ontimeout = function handleTimeout() {
-      reject(new Error(`超市${timeout}`))
+      // reject(new Error(`超市${timeout}`))
+      reject(createError(`Timeout of ${timeout} ms`, config, 'ECONNABORTED', request))
     }
 
     // 在open之后设置headers
@@ -61,7 +64,16 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
       if (response.status >= 200 && response.status < 300) {
         resolve(response)
       } else {
-        reject(new Error(`Request failed with status code ${response.status}`))
+        // reject(new Error(`Request failed with status code ${response.status}`))
+        reject(
+          createError(
+            `Request failed with status code ${response.status}`,
+            config,
+            null,
+            request,
+            response
+          )
+        )
       }
     }
   })

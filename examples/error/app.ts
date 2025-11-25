@@ -1,5 +1,4 @@
-import axios from '../../src/index'
-
+import axios, { AxiosError } from '../../src/index'
 axios({
   url: '/error/get1',
   method: 'get'
@@ -43,7 +42,8 @@ axios({
   .then(res => {
     console.log(res)
   })
-  .catch(err => {
+  // ts没有推断出来
+  .catch((err: AxiosError) => {
     console.log(err.message)
     console.log(err.config)
     console.log(err.code)
