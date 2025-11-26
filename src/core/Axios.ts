@@ -1,7 +1,19 @@
 import { AxiosPromise, AxiosRequestConfig } from '../types'
 import dispatchRequest from './dispatchRequest'
 export default class Axios {
-  request(config: AxiosRequestConfig): AxiosPromise {
+  // 函数重载，需要修改request方法，然后需要把类型全部写成any
+  // request(config: AxiosRequestConfig): AxiosPromise {
+  //   return dispatchRequest(config)
+  // }
+  request(url: any, config?: any): AxiosPromise {
+    if (typeof url === 'string') {
+      if (!config) {
+        config = {}
+      }
+      config.url = url
+    } else {
+      config = url
+    }
     return dispatchRequest(config)
   }
 

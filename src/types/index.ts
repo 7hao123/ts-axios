@@ -58,4 +58,6 @@ export interface Axios {
 export interface AxiosInstance extends Axios {
   // 可调用签名，表示这个对象可以像函数一样被调用
   (config: AxiosRequestConfig): AxiosPromise
+
+  (url: string, config?: AxiosRequestConfig): AxiosPromise
 }

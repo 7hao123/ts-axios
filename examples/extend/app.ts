@@ -39,12 +39,12 @@ axios({
   }
 })
 
-// axios('/extend/post', {
-//   method: 'post',
-//   data: {
-//     msg: 'hi function reload'
-//   }
-// })
+axios('/extend/post', {
+  method: 'post',
+  data: {
+    msg: 'hi function reload'
+  }
+})
 
 // // 响应数据支持泛型 demo
 // interface ResponseData<T=any> {
