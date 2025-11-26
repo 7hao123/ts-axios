@@ -1,40 +1,16 @@
-import { transformRequest, transformResponse } from './helpers/data'
-import { processHeaders } from './helpers/header'
-import { buildURL } from './helpers/url'
-import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from './types'
-import xhr from './xhr'
-function axios(config: AxiosRequestConfig): AxiosPromise {
-  processConfig(config)
-  return xhr(config).then(res => {
-    return transformResponseData(res)
-  })
-}
-function processConfig(config: AxiosRequestConfig) {
-  // 对config里面的url进行处理
-  config.url = transformURL(config)
-  // 必须先处理headers
-  config.headers = transformHeaders(config)
-  config.data = transformData(config)
+import Axios from './core/Axios'
+import { AxiosInstance } from './types'
+import { extend } from './helpers/utils'
+// 这里是在做什么魔法？？
+function createInstance(): AxiosInstance {
+  const context = new Axios()
+  const instance = Axios.prototype.request.bind(context)
+
+  extend(instance, context)
+
+  return instance as AxiosInstance
 }
 
-function transformURL(config: AxiosRequestConfig) {
-  const { url, params } = config
-  return buildURL(url, params)
-}
-
-function transformData(config: AxiosRequestConfig): any {
-  return transformRequest(config.data)
-}
-
-function transformHeaders(config: AxiosRequestConfig): any {
-  // 没有设置headers做默认值处理
-  const { headers = {}, data } = config
-  return processHeaders(headers, data)
-}
-
-function transformResponseData(res: AxiosResponse): AxiosResponse {
-  res.data = transformResponse(res.data)
-  return res
-}
+const axios = createInstance()
 
 export default axios
