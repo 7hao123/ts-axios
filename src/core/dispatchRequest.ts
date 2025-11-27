@@ -1,5 +1,5 @@
 import { transformRequest, transformResponse } from '../helpers/data'
-import { processHeaders } from '../helpers/header'
+import { flattenHeaders, processHeaders } from '../helpers/header'
 import { buildURL } from '../helpers/url'
 import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from '../types'
 import xhr from './xhr'
@@ -15,6 +15,7 @@ function processConfig(config: AxiosRequestConfig) {
   // 必须先处理headers
   config.headers = transformHeaders(config)
   config.data = transformData(config)
+  config.headers = flattenHeaders(config.headers, config.method!)
 }
 
 function transformURL(config: AxiosRequestConfig) {

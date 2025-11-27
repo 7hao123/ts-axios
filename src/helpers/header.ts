@@ -1,4 +1,4 @@
-import { isPlainObject } from './utils'
+import { deepMerge, isPlainObject } from './utils'
 // 由于header可能设置小写的，所以需要做处理
 function normalizeHeaderName(headers: any, normalizedName: string) {
   if (!headers) return
@@ -41,4 +41,20 @@ export function parseHeaders(headers: string): any {
   })
 
   return parsed
+}
+
+export function flattenHeaders(headers: any, method: string): any {
+  if (!headers) {
+    return headers
+  }
+
+  headers = deepMerge(headers.common, headers[method], headers)
+
+  const methodsToDelete = ['delete', 'get', 'head', 'options', 'post', 'put', 'patch', 'common']
+
+  methodsToDelete.forEach(method => {
+    delete headers[method]
+  })
+
+  return headers
 }
