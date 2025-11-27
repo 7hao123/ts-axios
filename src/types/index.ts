@@ -45,6 +45,12 @@ export interface AxiosError extends Error {
 }
 
 export interface Axios {
+  defaults: AxiosRequestConfig
+  // 因为没有写interceptors，所以写的时候ts识别不到
+  interceptors: {
+    request: AxiosInterceptorManager<AxiosRequestConfig>
+    response: AxiosInterceptorManager<AxiosResponse>
+  }
   request<T = any>(config: AxiosRequestConfig): AxiosPromise<T>
   get<T = any>(url: string, config?: AxiosRequestConfig): AxiosPromise<T>
   delete<T = any>(url: string, config?: AxiosRequestConfig): AxiosPromise<T>
@@ -64,7 +70,7 @@ export interface AxiosInstance extends Axios {
 
 export interface AxiosInterceptorManager<T> {
   // 拦截器返回number是为了清空该拦截器
-  use(resolved: ResolvedFn<T>, rejected: RejectedFn): number
+  use(resolved: ResolvedFn<T>, rejected?: RejectedFn): number
   eject(id: number): void
 }
 

@@ -1,6 +1,29 @@
-import { AxiosPromise, AxiosRequestConfig } from '../types'
+import { AxiosPromise, AxiosRequestConfig, AxiosResponse, RejectedFn, ResolvedFn } from '../types'
 import dispatchRequest from './dispatchRequest'
+import InterceptorManager from './interceptorManager'
+
+interface Interceptors {
+  request: InterceptorManager<AxiosRequestConfig>
+  response: InterceptorManager<AxiosResponse>
+}
+
+interface PromiseChain<T> {
+  resolved: ResolvedFn<T> | ((config: AxiosRequestConfig) => AxiosPromise)
+  rejected?: RejectedFn
+}
+
 export default class Axios {
+  defaults: AxiosRequestConfig
+  interceptors: Interceptors
+  // 这样的话用户就可以axios.interceptors.request.use
+  constructor(initConfig: AxiosRequestConfig) {
+    this.defaults = initConfig
+    this.interceptors = {
+      request: new InterceptorManager<AxiosRequestConfig>(),
+      response: new InterceptorManager<AxiosResponse>()
+    }
+  }
+
   // 函数重载，需要修改request方法，然后需要把类型全部写成any
   // request(config: AxiosRequestConfig): AxiosPromise {
   //   return dispatchRequest(config)
@@ -14,7 +37,32 @@ export default class Axios {
     } else {
       config = url
     }
-    return dispatchRequest(config)
+
+    const chain: PromiseChain<any>[] = [
+      {
+        resolved: dispatchRequest,
+        rejected: undefined
+      }
+    ]
+
+    this.interceptors.request.forEach(interceptor => {
+      chain.unshift(interceptor)
+    })
+
+    this.interceptors.response.forEach(interceptor => {
+      chain.push(interceptor)
+    })
+
+    // 前面promise链已经构建好了，现在依次执行
+    let promise = Promise.resolve(config)
+
+    while (chain.length) {
+      const { resolved, rejected } = chain.shift()!
+      promise = promise.then(resolved, rejected)
+    }
+
+    // return dispatchRequest(config)
+    return promise
   }
 
   get(url: string, config?: AxiosRequestConfig): AxiosPromise {
