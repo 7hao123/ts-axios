@@ -1,9 +1,10 @@
 import Axios from './core/Axios'
-import { AxiosInstance } from './types'
+import { AxiosInstance, AxiosRequestConfig } from './types'
 import { extend } from './helpers/utils'
+import { defaults } from './defaults'
 // 这里是在做什么魔法？？
-function createInstance(): AxiosInstance {
-  const context = new Axios()
+function createInstance(config: AxiosRequestConfig): AxiosInstance {
+  const context = new Axios(config)
   // 将axios的request绑定到axiosInstance上，所以为了实现函数重载，需要重写request
   const instance = Axios.prototype.request.bind(context)
 
@@ -12,6 +13,6 @@ function createInstance(): AxiosInstance {
   return instance as AxiosInstance
 }
 
-const axios = createInstance()
+const axios = createInstance(defaults)
 
 export default axios
