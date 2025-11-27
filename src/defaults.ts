@@ -1,6 +1,6 @@
 import { AxiosRequestConfig } from './types'
 
-export  const defaults: AxiosRequestConfig = {
+export const defaults: AxiosRequestConfig = {
   method: 'get',
   timeout: 0,
   headers: {
@@ -20,6 +20,6 @@ const methodsWithData = ['post', 'put', 'patch']
 
 methodsWithData.forEach(method => {
   defaults.headers[method] = {
-    'Content-Type': 'application/x-ww-form-urlencoded'
+    'Content-Type': 'application/x-www-form-urlencoded'
   }
 })
